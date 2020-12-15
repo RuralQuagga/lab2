@@ -63,6 +63,7 @@ import threading
 import numpy as np
 import tensorflow as tf
 import tensorflow_io as tfio
+from skimage.color import rgb2lab
 tf.compat.v1.disable_eager_execution()
 
 flags.DEFINE_string('input', default=None, help='Data directory')
@@ -140,8 +141,9 @@ class ImageCoder(object):
     def decode_jpeg(self, image_data):
         image_decoded = self._sess.run(self._decode_jpeg,
                                feed_dict={self._decode_jpeg_data: image_data})
-        image_decoded = tf.cast(image_decoded, tf.float16)
-        image = tfio.experimental.color.rgb_to_lab(image_decoded)
+        #image_decoded = tf.cast(image_decoded, tf.float16)
+        #image = tfio.experimental.color.rgb_to_lab(image_decoded)
+        image = rgb2lab(image_decoded)
         assert len(image.shape) == 3
         assert image.shape[2] == 3
         return image

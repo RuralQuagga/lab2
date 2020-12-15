@@ -33,17 +33,7 @@ def parse_proto_example(proto):
     example['image'] = tf.image.decode_jpeg(example['image/encoded'], channels=3)
     example['image'] = tf.image.convert_image_dtype(example['image'], dtype=tf.float32)
     example['image'] = tf.image.resize(example['image'], tf.constant([RESIZE_TO, RESIZE_TO]))
-    example['l_channel'] = example.get('image')[:, :, 0]
-    example['ab_channel'] = example.get('image')[:, :, 1:]
     return example['image']
-
-
-def normalize(image):
-    return tf.image.per_image_standardization(image)
-
-
-def resize(image):
-    return tf.image.resize(image, tf.constant([RESIZE_TO, RESIZE_TO]))
 
 
 def create_dataset(filenames, batch_size):
@@ -53,8 +43,6 @@ def create_dataset(filenames, batch_size):
     """
     return tf.data.TFRecordDataset(filenames) \
         .map(parse_proto_example) \
-        .map(resize) \
-        .map(normalize) \
         .batch(batch_size) \
         .prefetch(batch_size)
 
@@ -124,20 +112,17 @@ def main():
     model = build_model()
 
     model.compile(
-        optimizer=tf.optimizers.SGD(lr=0.01, momentum=0.9),
+        optimizer=tf.optimizers.SGD(lr=0.1, momentum=0.9),
         loss=tf.keras.losses.mean_squared_error,
         metrics=[tf.keras.metrics.categorical_accuracy],
     )
 
-    #log_dir = '{}\\ilcd-{}'.format(LOG_DIR, time.time())
     model.fit(
         x=x,
         y=y,
         epochs=100,
         validation_data=validation_y.all(),
-        callbacks=[
-            tf.keras.callbacks.TensorBoard(log_dir),
-        ]
+        callbacks=[tf.keras.callbacks.TensorBoard(log_dir)]
     )
 
     # Test model

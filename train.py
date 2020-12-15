@@ -91,7 +91,7 @@ def main():
     args = args.parse_args()
 
     log_dir = "C:/Users/dimas/Desktop/logs/train_data/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    #display_image(log_dir, args.train)
+    display_image(log_dir, args.train)
 
     #current_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -112,8 +112,8 @@ def main():
     model = build_model()
 
     model.compile(
-        optimizer=tf.optimizers.SGD(lr=0.1, momentum=0.9),
-        loss=tf.keras.losses.mean_squared_error,
+        optimizer=tf.optimizers.SGD(lr=0.01, momentum=0.9),
+        loss=tf.keras.losses.mean_absolute_error,
         metrics=[tf.keras.metrics.categorical_accuracy],
     )
 
@@ -135,7 +135,7 @@ def main():
         cur[:, :, 0] = x[i][:, :, 0]
         cur[:, :, 1:] = output[i]
         with file_writer.as_default():
-            tf.summary.image("{i}-img_result.png".format(i=i), np.reshape(cur, (1, 224, 224, 3)), step=4)
+            tf.summary.image("{i}-img_result.png".format(i=i), np.reshape(cur, (1, 224, 224, 3)), step=15)
 
     print(model.summary())
 
